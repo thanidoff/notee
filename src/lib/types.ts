@@ -14,6 +14,7 @@ export interface KnowledgeCard {
   status: CardStatus;
   ready_to_use_output?: string;
   user_note?: string;
+  sort_order?: number;
   created_at: string; // ISO Date String
   updated_at: string;
   last_used_at?: string;

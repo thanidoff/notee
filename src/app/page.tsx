@@ -14,11 +14,18 @@ import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } fro
 
 export default function Home() {
   const cards = useVaultStore((state) => state.cards);
+  const fetchCards = useVaultStore((state) => state.fetchCards);
+  const isLoading = useVaultStore((state) => state.isLoading);
   const openQuickSave = useUIStore((state) => state.openQuickSave);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isMounted, setIsMounted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+    fetchCards();
+  }, [fetchCards]);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -53,11 +60,6 @@ export default function Home() {
     }
     setActiveId(null);
   };
-
-  // Prevent hydration mismatch since we use localStorage
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const isSearchActive = searchQuery.trim().length > 0 || activeCategory !== 'All';
 
@@ -99,7 +101,7 @@ export default function Home() {
           </div>
           
           <Link href="/settings">
-            <Button variant="outline" size="icon" className="shrink-0 rounded-full border-slate-200/60 bg-white/60 backdrop-blur-md hover:bg-white text-slate-600">
+            <Button variant="secondary" size="icon" className="shrink-0 rounded-full border-slate-200/60 bg-white/60 backdrop-blur-md hover:bg-white text-slate-600">
               <Settings className="w-4 h-4" />
             </Button>
           </Link>
@@ -133,8 +135,13 @@ export default function Home() {
         </div>
       )}
 
-      {/* Empty State */}
-      {cards.length === 0 ? (
+      {/* Loading/Empty/List State */}
+      {isLoading && cards.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p>Loading your vault...</p>
+        </div>
+      ) : cards.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-[var(--radius-2xl)] border border-dashed border-slate-200">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="w-8 h-8 text-slate-400" />

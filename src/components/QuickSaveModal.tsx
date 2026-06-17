@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUIStore } from '@/lib/uiStore';
 import { useVaultStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 import { Button } from './ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
@@ -44,6 +45,30 @@ export function QuickSaveModal() {
     const isUrl = content.startsWith('http');
     const type = isUrl ? 'link' : 'note';
 
+    // Upload images to Supabase Storage first
+    let uploadedImageUrls: string[] | undefined = undefined;
+    if (images && images.length > 0) {
+      uploadedImageUrls = [];
+      for (const base64 of images) {
+        try {
+          const res = await fetch(base64);
+          const blob = await res.blob();
+          const fileName = `${Date.now()}-${uuidv4()}.png`;
+          
+          const { error } = await supabase.storage.from('images').upload(fileName, blob, {
+            contentType: blob.type || 'image/png',
+          });
+          
+          if (!error) {
+            const { data: urlData } = supabase.storage.from('images').getPublicUrl(fileName);
+            uploadedImageUrls.push(urlData.publicUrl);
+          }
+        } catch (err) {
+          console.error('Image upload failed', err);
+        }
+      }
+    }
+
     // 1. Optimistic Save
     const optimisticCard: KnowledgeCard = {
       id: newId,
@@ -51,7 +76,7 @@ export function QuickSaveModal() {
       type: type,
       raw_content: content,
       source_url: isUrl ? content : undefined,
-      image_urls: clipboardData?.images && clipboardData.images.length > 0 ? clipboardData.images : undefined,
+      image_urls: uploadedImageUrls && uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
       summary: 'Please wait while AI analyzes the content...',
       use_this_when: ['Processing...'],
       status: 'saved',
@@ -75,7 +100,7 @@ export function QuickSaveModal() {
       const response = await fetch('/api/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, images: clipboardData?.images, existingCategories, type })
+        body: JSON.stringify({ content, images: uploadedImageUrls, existingCategories, type })
       });
 
       if (!response.ok) {
