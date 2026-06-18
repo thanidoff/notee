@@ -17,7 +17,7 @@ import { PasteListener } from "@/components/PasteListener";
 import { QuickSaveModal } from "@/components/QuickSaveModal";
 
 export const metadata: Metadata = {
-  title: "Use-It-Later",
+  title: "Bloomr",
   description: "Situation-based Personal Knowledge Vault",
 };
 
