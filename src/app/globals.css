@@ -28,14 +28,7 @@
   --foreground: #1e293b; /* slate-800 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1e293b; /* Keep soft dark if they use it */
-    --foreground: #f8fafc;
-    --color-bg-main: #0f172a;
-    --color-bg-card: #1e293b;
-  }
-}
+
 
 body {
   background-color: var(--color-bg-main);
