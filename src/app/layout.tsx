@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="th"
       className={`${nunito.variable} ${prompt.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[var(--color-bg-main)] text-slate-800">
+      <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-800">
         <AuthProvider>
           {children}
           <PasteListener />
