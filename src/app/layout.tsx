@@ -16,6 +16,8 @@ const prompt = Prompt({
 import { PasteListener } from "@/components/PasteListener";
 import { QuickSaveModal } from "@/components/QuickSaveModal";
 
+import { AuthProvider } from "@/components/AuthProvider";
+
 export const metadata: Metadata = {
   title: "Bloomr",
   description: "Situation-based Personal Knowledge Vault",
@@ -32,9 +34,11 @@ export default function RootLayout({
       className={`${nunito.variable} ${prompt.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[var(--color-bg-main)] text-slate-800">
-        {children}
-        <PasteListener />
-        <QuickSaveModal />
+        <AuthProvider>
+          {children}
+          <PasteListener />
+          <QuickSaveModal />
+        </AuthProvider>
       </body>
     </html>
   );

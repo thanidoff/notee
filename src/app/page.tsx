@@ -6,13 +6,15 @@ import { useUIStore } from '@/lib/uiStore';
 import { KnowledgeCard } from '@/components/KnowledgeCard';
 import { SortableCard } from '@/components/SortableCard';
 import { Input } from '@/components/ui/Input';
-import { Search, Plus, Settings } from 'lucide-react';
+import { Search, Plus, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function Home() {
+  const { user, signOut } = useAuth();
   const cards = useVaultStore((state) => state.cards);
   const fetchCards = useVaultStore((state) => state.fetchCards);
   const isLoading = useVaultStore((state) => state.isLoading);
@@ -100,11 +102,20 @@ export default function Home() {
             />
           </div>
           
-          <Link href="/settings">
-            <Button variant="secondary" size="icon" className="shrink-0 rounded-full border-slate-200/60 bg-white/60 backdrop-blur-md hover:bg-white text-slate-600">
-              <Settings className="w-4 h-4" />
-            </Button>
-          </Link>
+          {user && (
+            <div className="flex items-center gap-2 mx-1">
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full border border-slate-200 shadow-sm" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center">
+                  <span className="text-xs font-medium text-slate-500">{user.email?.[0]?.toUpperCase()}</span>
+                </div>
+              )}
+              <Button variant="ghost" size="icon" onClick={signOut} title="Sign Out" className="shrink-0 rounded-full hover:bg-slate-200 text-slate-600">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           <Button 
             onClick={() => openQuickSave({})}
